@@ -1,0 +1,129 @@
+﻿<Window x:Class="Minesweeper.MainWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:diag="clr-namespace:System.Diagnostics;assembly=WindowsBase"
+        xmlns:local="clr-namespace:Minesweeper"
+        xmlns:gamemenu="clr-namespace:Minesweeper.GameMenu"
+        xmlns:wpfautogrid="clr-namespace:WpfAutoGrid;assembly=WpfAutoGrid"
+        mc:Ignorable="d"
+        Title="Minesweeper" Height="450" Width="800">
+  
+  <Window.Resources>
+    <DataTemplate x:Key="GameBoardSingleTile">
+      <Button Content="{Binding Path=IsMine}" Height="20" Width="20" Margin="1,1,1,1"/>
+    </DataTemplate>
+
+    <DataTemplate x:Key="GameBoardTileRow">
+      <ItemsControl ItemsSource="{Binding}" ItemTemplate="{DynamicResource GameBoardSingleTile}">
+        <ItemsControl.ItemsPanel>
+          <ItemsPanelTemplate>
+            <wpfautogrid:AutoGrid RowCount="10" RowHeight="1*" ColumnCount="10" ColumnWidth="1*" ShowGridLines="True">
+
+            </wpfautogrid:AutoGrid>
+          </ItemsPanelTemplate>
+        </ItemsControl.ItemsPanel>
+      </ItemsControl>
+    </DataTemplate>
+    
+    <DataTemplate x:Key="10x10Board">
+      <Grid>
+        <ItemsControl ItemsSource="{Binding GameBoardArray}" ItemTemplate="{DynamicResource GameBoardTileRow}"/>
+      </Grid>
+    </DataTemplate>
+
+    <DataTemplate x:Key="16x16Board">
+      <wpfautogrid:AutoGrid RowCount="16" RowHeight="*" ColumnCount="16" ColumnWidth="1*" ShowGridLines="True">
+ 
+      </wpfautogrid:AutoGrid>
+    </DataTemplate>
+
+    <DataTemplate x:Key="16x30Board">
+      <wpfautogrid:AutoGrid RowCount="16" RowHeight="*" ColumnCount="30" ColumnWidth="1*" ShowGridLines="True">
+
+      </wpfautogrid:AutoGrid>
+    </DataTemplate>
+
+    <Style x:Key="GameBoardSize" TargetType="{x:Type ContentControl}">
+      <Style.Triggers>
+        <DataTrigger Binding="{Binding Path=CurrentDifficulty}" Value="{x:Static gamemenu:GameDifficulty.Beginner}">
+          <Setter Property="ContentTemplate" Value="{StaticResource 10x10Board}"/>
+        </DataTrigger>
+        <DataTrigger Binding="{Binding Path=CurrentDifficulty}" Value="{x:Static gamemenu:GameDifficulty.Intermediate}">
+          <Setter Property="ContentTemplate" Value="{StaticResource 16x16Board}"/>
+        </DataTrigger>
+        <DataTrigger Binding="{Binding Path=CurrentDifficulty}" Value="{x:Static gamemenu:GameDifficulty.Expert}">
+          <Setter Property="ContentTemplate" Value="{StaticResource 16x30Board}"/>
+        </DataTrigger>
+      </Style.Triggers>
+    </Style>
+    
+    <DataTemplate x:Key="MenuContent">
+      <Grid Name="MenuGrid">
+        <Grid.RowDefinitions>
+          <RowDefinition Height="10*" />
+          <RowDefinition Height="1*" />
+        </Grid.RowDefinitions>
+        <Grid.ColumnDefinitions>
+          <ColumnDefinition Width="1*"/>
+          <ColumnDefinition Width="1*"/>
+          <ColumnDefinition Width="1*"/>
+          <ColumnDefinition Width="1*"/>
+          <ColumnDefinition Width="1*"/>
+          <ColumnDefinition Width="1*"/>
+          <ColumnDefinition Width="1*"/>
+        </Grid.ColumnDefinitions>
+        <Button Grid.Row="1" Grid.Column="3" Content="Start Game" Command="{Binding Path=StartGameCommand}" VerticalAlignment="Center" HorizontalAlignment="Center"/>
+      </Grid>
+    </DataTemplate>
+
+    <DataTemplate x:Key="GameContent">
+      <Grid Name="MainGrid">
+        <Grid.RowDefinitions>
+          <RowDefinition Height="10*" />
+          <RowDefinition Height="1*" />
+        </Grid.RowDefinitions>
+        <Grid.ColumnDefinitions>
+          <ColumnDefinition Width="1*"/>
+          <ColumnDefinition Width="5*"/>
+          <ColumnDefinition Width="1*"/>
+        </Grid.ColumnDefinitions>
+        <Button Grid.Row="1" Grid.Column="0" Content="Set Flag" Command="{Binding Path=SetFlagCommand}" VerticalAlignment="Center" HorizontalAlignment="Center">
+          <Button.Style>
+            <Style TargetType="Button">
+              <Style.Triggers>
+                <DataTrigger Binding="{Binding Path=IsSettingFlag}" Value="True">
+                  <Setter Property="Background" Value="Red"/>
+                  <Setter Property="FontWeight" Value="Bold"/>
+                </DataTrigger>
+                <DataTrigger Binding="{Binding Path=IsSettingFlag}" Value="False">
+                  <Setter Property="Background" Value="{DynamicResource {x:Static SystemColors.ControlBrushKey}}"/>
+                  <Setter Property="FontWeight" Value="Normal"/>
+                </DataTrigger>
+              </Style.Triggers>
+            </Style>
+          </Button.Style>
+        </Button>
+        <Button Grid.Row="1" Grid.Column="2" Content="End Game" Command="{Binding Path=EndGameCommand}" VerticalAlignment="Center" HorizontalAlignment="Center" />
+
+        <ContentControl Grid.Row="0" Grid.Column="1" Style="{StaticResource GameBoardSize}" Content="{Binding}"/>
+      </Grid>
+    </DataTemplate>
+
+    <Style x:Key="CurrentContent" TargetType="{x:Type ContentControl}">
+      <Style.Triggers>
+        <DataTrigger Binding="{Binding Path=CurrentState}" Value="{x:Static gamemenu:ViewState.Game}">
+          <Setter Property="ContentTemplate" Value="{StaticResource GameContent}"/>
+        </DataTrigger>
+        <DataTrigger Binding="{Binding Path=CurrentState}" Value="{x:Static gamemenu:ViewState.Menu}">
+          <Setter Property="ContentTemplate" Value="{StaticResource MenuContent}"/>
+        </DataTrigger>
+      </Style.Triggers>
+    </Style>
+  </Window.Resources>
+  
+  <Grid Name="MainGrid">
+    <ContentControl Style="{StaticResource CurrentContent}" Content="{Binding}"/>
+  </Grid>
+</Window>
