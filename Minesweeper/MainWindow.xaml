@@ -12,14 +12,18 @@
   
   <Window.Resources>
     <DataTemplate x:Key="GameBoardSingleTile">
-      <Button Content="{Binding Path=IsMine}" Height="20" Width="20" Margin="1,1,1,1"/>
+      <Button Content="{Binding Path=IsSelected}" Margin="1,1,1,1"
+              Command="{Binding Path=DataContext.SelectTileCommand, 
+                        RelativeSource={RelativeSource Mode=FindAncestor, 
+                        AncestorType=Grid, AncestorLevel=2}}"
+              CommandParameter="{Binding}"/>
     </DataTemplate>
 
-    <DataTemplate x:Key="GameBoardTileRow">
+    <DataTemplate x:Key="GameBoardTileRow10x10">
       <ItemsControl ItemsSource="{Binding}" ItemTemplate="{DynamicResource GameBoardSingleTile}">
         <ItemsControl.ItemsPanel>
           <ItemsPanelTemplate>
-            <wpfautogrid:AutoGrid RowCount="10" RowHeight="1*" ColumnCount="10" ColumnWidth="1*" ShowGridLines="True">
+            <wpfautogrid:AutoGrid RowCount="10" RowHeight="1*" ColumnCount="10" ColumnWidth="1*">
 
             </wpfautogrid:AutoGrid>
           </ItemsPanelTemplate>
@@ -29,20 +33,44 @@
     
     <DataTemplate x:Key="10x10Board">
       <Grid>
-        <ItemsControl ItemsSource="{Binding GameBoardArray}" ItemTemplate="{DynamicResource GameBoardTileRow}"/>
+        <ItemsControl ItemsSource="{Binding Path=GameBoardArray, UpdateSourceTrigger=PropertyChanged}" ItemTemplate="{DynamicResource GameBoardTileRow10x10}"/>
       </Grid>
     </DataTemplate>
 
+    <DataTemplate x:Key="GameBoardTileRow16x16">
+      <ItemsControl ItemsSource="{Binding}" ItemTemplate="{DynamicResource GameBoardSingleTile}">
+        <ItemsControl.ItemsPanel>
+          <ItemsPanelTemplate>
+            <wpfautogrid:AutoGrid RowCount="16" RowHeight="1*" ColumnCount="16" ColumnWidth="1*">
+
+            </wpfautogrid:AutoGrid>
+          </ItemsPanelTemplate>
+        </ItemsControl.ItemsPanel>
+      </ItemsControl>
+    </DataTemplate>
+
     <DataTemplate x:Key="16x16Board">
-      <wpfautogrid:AutoGrid RowCount="16" RowHeight="*" ColumnCount="16" ColumnWidth="1*" ShowGridLines="True">
- 
-      </wpfautogrid:AutoGrid>
+      <Grid>
+        <ItemsControl ItemsSource="{Binding GameBoardArray}" ItemTemplate="{DynamicResource GameBoardTileRow16x16}"/>
+      </Grid>
+    </DataTemplate>
+
+    <DataTemplate x:Key="GameBoardTileRow16x30">
+      <ItemsControl ItemsSource="{Binding}" ItemTemplate="{DynamicResource GameBoardSingleTile}">
+        <ItemsControl.ItemsPanel>
+          <ItemsPanelTemplate>
+            <wpfautogrid:AutoGrid RowCount="16" RowHeight="1*" ColumnCount="30" ColumnWidth="1*">
+
+            </wpfautogrid:AutoGrid>
+          </ItemsPanelTemplate>
+        </ItemsControl.ItemsPanel>
+      </ItemsControl>
     </DataTemplate>
 
     <DataTemplate x:Key="16x30Board">
-      <wpfautogrid:AutoGrid RowCount="16" RowHeight="*" ColumnCount="30" ColumnWidth="1*" ShowGridLines="True">
-
-      </wpfautogrid:AutoGrid>
+      <Grid>
+        <ItemsControl ItemsSource="{Binding GameBoardArray}" ItemTemplate="{DynamicResource GameBoardTileRow16x30}"/>
+      </Grid>
     </DataTemplate>
 
     <Style x:Key="GameBoardSize" TargetType="{x:Type ContentControl}">

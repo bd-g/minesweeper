@@ -8,8 +8,10 @@ using System.Runtime.CompilerServices;
 using System.Text;
 using System.Collections.Specialized;
 
+//TODO - decide how to implement selecting a tile. keep in mind checking for losing/winning, and chain reactions off of 
+// stuff, like labeling how many mines are nearby
 namespace Minesweeper.GamePlay {
-  public class GameTileCollectionModel : INotifyCollectionChanged {
+  public class GameTileCollectionModel : CustomNotifyPropertyOrCollectionChanged {
     #region Fields
     private static readonly NLog.Logger logger = NLog.LogManager.GetCurrentClassLogger();
     private List<List<GameTileModel>> prTileList;
@@ -50,10 +52,6 @@ namespace Minesweeper.GamePlay {
     public List<List<GameTileModel>> TileArray { get { return prTileList; } }
     #endregion
 
-    #region Events
-    public event NotifyCollectionChangedEventHandler CollectionChanged;
-    #endregion
-
     #region Public Methods
     /// <summary>
     /// Method that enables changes to a game tile, whether it is being selected or flagged
@@ -62,9 +60,28 @@ namespace Minesweeper.GamePlay {
     /// <param name="col">Row in game board of tile to be changed</param>
     /// <param name="isSwitchingFlaggedStatus">Boolean indicating whether the flag status should change</param>
     /// <param name="isMineBeingSelected">Boolean indicating whether the tile has been selected by the user to reveal</param>
-    public void AlterGameTile(int row, int col, bool isSwitchingFlaggedStatus, bool isMineBeingSelected) 
+    public void AlterGameTile(Guid identifier, bool isSwitchingFlaggedStatus, bool isMineBeingSelected) 
     {
-      var oldTile = prTileList[row][col];
+      GameTileModel oldTile = null;
+      int row = -1;
+      int col = -1;
+      for (int i = 0; i < prTileList.Count; i++) {
+        for (int j = 0; j < prTileList[i].Count; j++) {
+          if (prTileList[i][j].TileIdentifier.Equals(identifier)) {
+            oldTile = prTileList[i][j];
+            row = i;
+            col = j;
+            break;
+          }
+        }
+        if (oldTile != null) {
+          break;
+        }
+      }
+
+      if (oldTile == null) {
+        throw new ArgumentNullException("Could not find specified tile");
+      }
 
       bool newTileIsMine = oldTile.IsMine;
       bool newTileIsFlagged = isSwitchingFlaggedStatus ^ oldTile.IsFlagged;
@@ -75,7 +92,7 @@ namespace Minesweeper.GamePlay {
         prTileList[row][col] = newTile;
         int index = (prTileList[0].Count * row) + col;
         logger.Trace("Gametile altered at [%d,%d], index %d\nOld Tile - %s\nNewTile - %s", row, col, index, oldTile.ToString(), newTile.ToString());
-        CollectionChanged?.Invoke(this, new NotifyCollectionChangedEventArgs(NotifyCollectionChangedAction.Replace, prTileList[row][col], oldTile, index));
+        OnCollectionChanged(new NotifyCollectionChangedEventArgs(NotifyCollectionChangedAction.Replace, prTileList[row][col], oldTile, index));
       }     
     }
     #endregion
@@ -83,14 +100,18 @@ namespace Minesweeper.GamePlay {
 
   #region Helper Classes
   public class GameTileModel {
+    private readonly Guid guid;
     public GameTileModel(bool IsMine = false, bool IsSelected = false, bool IsFlagged = false) {
       this.IsMine = IsMine;
       this.IsSelected = IsSelected;
       this.IsFlagged = IsFlagged;
+      guid = Guid.NewGuid();
     }
     public bool IsMine { get; }
     public bool IsSelected { get; }
     public bool IsFlagged { get; }
+
+    public Guid TileIdentifier { get { return guid;  } }
 
     public override string ToString()
     {
