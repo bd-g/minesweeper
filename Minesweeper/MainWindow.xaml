@@ -33,7 +33,7 @@
     
     <DataTemplate x:Key="10x10Board">
       <Grid>
-        <ItemsControl ItemsSource="{Binding Path=GameBoardArray, UpdateSourceTrigger=PropertyChanged}" ItemTemplate="{DynamicResource GameBoardTileRow10x10}"/>
+        <ItemsControl ItemsSource="{Binding Path=GameBoardCollection}" ItemTemplate="{DynamicResource GameBoardTileRow10x10}"/>
       </Grid>
     </DataTemplate>
 

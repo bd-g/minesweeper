@@ -4,8 +4,10 @@ using Prism.Commands;
 using Prism.Mvvm;
 using System;
 using System.Collections.Generic;
+using System.Collections.ObjectModel;
 using System.Collections.Specialized;
 using System.ComponentModel;
+using System.Linq;
 using System.Text;
 using System.Windows;
 using System.Windows.Controls;
@@ -26,10 +28,10 @@ namespace Minesweeper.GameMenu {
     Expert
   }
   #endregion
-  class GameMenuViewModel : CustomNotifyPropertyOrCollectionChanged {
+  class GameMenuViewModel : CustomNotifyPropertyChanged {
 
     #region Fields
-    private GameTileCollectionModel gameTileCollectionModel;
+    private ObservableCollection<GameTileModel> prGameTileCollection;
     private ViewState currentState;
     private GameDifficulty currentDifficulty;
     private bool isSettingFlag;
@@ -46,8 +48,6 @@ namespace Minesweeper.GameMenu {
       this.currentState = ViewState.Menu;
       this.isSettingFlag = false;
       this.currentDifficulty = GameDifficulty.Beginner;
-      this.gameTileCollectionModel = new GameTileCollectionModel();
-      gameTileCollectionModel.CollectionChanged += tileModel_CollectionChanged;
       this.StartGameCommand = new DelegateCommand<object>(this.StartGame, this.CanStartGame);
       this.EndGameCommand = new DelegateCommand<object>(this.EndGame, this.CanEndGame);
       this.SetFlagCommand = new DelegateCommand<object>(this.SetFlag, this.CanSetFlag);
@@ -71,9 +71,9 @@ namespace Minesweeper.GameMenu {
       }
     }
 
-    public List<List<GameTileModel>> GameBoardArray {
+    public ObservableCollection<GameTileModel> GameBoardCollection {
       get {
-        return gameTileCollectionModel.TileArray;
+        return prGameTileCollection;
       }
     }
 
@@ -101,6 +101,45 @@ namespace Minesweeper.GameMenu {
     #region Private Methods
     private void StartGame(object arg)
     {
+      int boardHeight, boardWidth, numMines;
+      if (CurrentDifficulty == GameDifficulty.Beginner) {
+        boardHeight = 10;
+        boardWidth = 10;
+        numMines = 10;
+      } else if (CurrentDifficulty == GameDifficulty.Intermediate) {
+        boardHeight = 16;
+        boardWidth = 16;
+        numMines = 40;
+      } else {
+        boardHeight = 16;
+        boardWidth = 30;
+        numMines = 99;
+      }
+      prGameTileCollection = new ObservableCollection<GameTileModel>();
+      for (int i = 0; i < boardHeight; i++) {
+        for (int j = 0; j < boardWidth; j++) {
+          prGameTileCollection.Add(null);
+        }
+      }
+
+      List<int> tileNumbers = Enumerable.Range(0, (boardHeight * boardWidth - 1)).ToList();
+      Random rand = new Random();
+
+      for (int i = 0; i < numMines; i++) {
+        int index = rand.Next(0, tileNumbers.Count - 1);
+        int randNumber = tileNumbers[index];
+        prGameTileCollection[randNumber] = new GameTileModel(true, false, false);
+        tileNumbers.RemoveAt(index);
+      }
+
+      for (int i = 0; i < boardHeight; i++) {
+        for (int j = 0; j < boardWidth; j++) {
+          int index = (i * boardWidth) + j;
+          if (prGameTileCollection[index] == null) {
+            prGameTileCollection[index] = new GameTileModel();
+          }
+        }
+      }
       CurrentState = ViewState.Game;
       ResetDefaults();
     }
@@ -117,10 +156,18 @@ namespace Minesweeper.GameMenu {
 
     private void SelectTile(object arg)
     {
-      GameTileModel selectedTile = (GameTileModel)arg;
-      bool isSwitchingFlagStatus = IsSettingFlag;
-      bool isMineBeingSelected = !IsSettingFlag;
-      gameTileCollectionModel.AlterGameTile(selectedTile.TileIdentifier, isSwitchingFlagStatus, isMineBeingSelected);
+      GameTileModel oldTile = (GameTileModel)arg;
+
+      bool newTileIsMine = oldTile.IsMine;
+      bool newTileIsFlagged = IsSettingFlag ^ oldTile.IsFlagged;
+      bool newTileIsSelected = oldTile.IsSelected || !IsSettingFlag;
+
+      if ((oldTile.IsFlagged != newTileIsFlagged) || (oldTile.IsSelected != newTileIsSelected)) {
+        int index = prGameTileCollection.IndexOf(oldTile);
+        var newTile = new GameTileModel(newTileIsMine, newTileIsSelected, newTileIsFlagged);
+        prGameTileCollection[index] = newTile;
+        logger.Trace("Gametile altered at index %d\nOld Tile - %s\nNewTile - %s", index, oldTile.ToString(), newTile.ToString());
+      }
     }
     private bool CanStartGame(object arg) { return true; }
 
@@ -133,17 +180,6 @@ namespace Minesweeper.GameMenu {
     {
       IsSettingFlag = false;
       CurrentDifficulty = GameDifficulty.Beginner;
-    }
-
-    private void tileModel_CollectionChanged(object sender, NotifyCollectionChangedEventArgs e)
-    {
-      if (e.Action == NotifyCollectionChangedAction.Replace) {
-        Console.WriteLine(GameBoardArray);
-        OnPropertyChanged("GameBoardArray");
-      } else {
-        logger.Warn(String.Format("Collection changed action type not implemented : {0}", e.Action.ToString()));
-        throw new NotImplementedException(String.Format("Collection changed action type not implemented : {0}", e.Action.ToString()));
-      }   
     }
     #endregion
   }
