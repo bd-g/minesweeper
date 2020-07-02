@@ -19,10 +19,6 @@
               CommandParameter="{Binding}"/>
     </DataTemplate>
 
-    <DataTemplate x:Key="GameBoardTileRow10x10">
-      
-    </DataTemplate>
-    
     <DataTemplate x:Key="10x10Board">
       <Grid>
         <ItemsControl ItemsSource="{Binding GameBoardCollection}" ItemTemplate="{DynamicResource GameBoardSingleTile}">
@@ -66,39 +62,127 @@
       </Grid>
     </DataTemplate>
 
-    <DataTemplate x:Key="GameBoardTileRow16x16">
-      <ItemsControl ItemsSource="{Binding}" ItemTemplate="{DynamicResource GameBoardSingleTile}">
-        <ItemsControl.ItemsPanel>
-          <ItemsPanelTemplate>
-            <wpfautogrid:AutoGrid RowCount="16" RowHeight="1*" ColumnCount="16" ColumnWidth="1*">
-
-            </wpfautogrid:AutoGrid>
-          </ItemsPanelTemplate>
-        </ItemsControl.ItemsPanel>
-      </ItemsControl>
-    </DataTemplate>
-
     <DataTemplate x:Key="16x16Board">
       <Grid>
-        <ItemsControl ItemsSource="{Binding GameBoardArray}" ItemTemplate="{DynamicResource GameBoardTileRow16x16}"/>
+        <ItemsControl ItemsSource="{Binding GameBoardCollection}" ItemTemplate="{DynamicResource GameBoardSingleTile}">
+          <ItemsControl.ItemsPanel>
+            <ItemsPanelTemplate>
+              <Grid>
+                <Grid.RowDefinitions>
+                  <RowDefinition Height="*"/>
+                  <RowDefinition Height="*"/>
+                  <RowDefinition Height="*"/>
+                  <RowDefinition Height="*"/>
+                  <RowDefinition Height="*"/>
+                  <RowDefinition Height="*"/>
+                  <RowDefinition Height="*"/>
+                  <RowDefinition Height="*"/>
+                  <RowDefinition Height="*"/>
+                  <RowDefinition Height="*"/>
+                  <RowDefinition Height="*"/>
+                  <RowDefinition Height="*"/>
+                  <RowDefinition Height="*"/>
+                  <RowDefinition Height="*"/>
+                  <RowDefinition Height="*"/>
+                  <RowDefinition Height="*"/>
+                </Grid.RowDefinitions>
+                <Grid.ColumnDefinitions>
+                  <ColumnDefinition Width="*"/>
+                  <ColumnDefinition Width="*"/>
+                  <ColumnDefinition Width="*"/>
+                  <ColumnDefinition Width="*"/>
+                  <ColumnDefinition Width="*"/>
+                  <ColumnDefinition Width="*"/>
+                  <ColumnDefinition Width="*"/>
+                  <ColumnDefinition Width="*"/>
+                  <ColumnDefinition Width="*"/>
+                  <ColumnDefinition Width="*"/>
+                  <ColumnDefinition Width="*"/>
+                  <ColumnDefinition Width="*"/>
+                  <ColumnDefinition Width="*"/>
+                  <ColumnDefinition Width="*"/>
+                  <ColumnDefinition Width="*"/>
+                  <ColumnDefinition Width="*"/>
+                </Grid.ColumnDefinitions>
+              </Grid>
+            </ItemsPanelTemplate>
+          </ItemsControl.ItemsPanel>
+          <ItemsControl.ItemContainerStyle>
+            <Style>
+              <Setter Property="Grid.Column" Value="{Binding Col}" />
+              <Setter Property="Grid.Row" Value="{Binding Row}" />
+            </Style>
+          </ItemsControl.ItemContainerStyle>
+        </ItemsControl>
       </Grid>
-    </DataTemplate>
-
-    <DataTemplate x:Key="GameBoardTileRow16x30">
-      <ItemsControl ItemsSource="{Binding}" ItemTemplate="{DynamicResource GameBoardSingleTile}">
-        <ItemsControl.ItemsPanel>
-          <ItemsPanelTemplate>
-            <wpfautogrid:AutoGrid RowCount="16" RowHeight="1*" ColumnCount="30" ColumnWidth="1*">
-
-            </wpfautogrid:AutoGrid>
-          </ItemsPanelTemplate>
-        </ItemsControl.ItemsPanel>
-      </ItemsControl>
     </DataTemplate>
 
     <DataTemplate x:Key="16x30Board">
       <Grid>
-        <ItemsControl ItemsSource="{Binding GameBoardArray}" ItemTemplate="{DynamicResource GameBoardTileRow16x30}"/>
+        <ItemsControl ItemsSource="{Binding GameBoardCollection}" ItemTemplate="{DynamicResource GameBoardSingleTile}">
+          <ItemsControl.ItemsPanel>
+            <ItemsPanelTemplate>
+              <Grid>
+                <Grid.RowDefinitions>
+                  <RowDefinition Height="*"/>
+                  <RowDefinition Height="*"/>
+                  <RowDefinition Height="*"/>
+                  <RowDefinition Height="*"/>
+                  <RowDefinition Height="*"/>
+                  <RowDefinition Height="*"/>
+                  <RowDefinition Height="*"/>
+                  <RowDefinition Height="*"/>
+                  <RowDefinition Height="*"/>
+                  <RowDefinition Height="*"/>
+                  <RowDefinition Height="*"/>
+                  <RowDefinition Height="*"/>
+                  <RowDefinition Height="*"/>
+                  <RowDefinition Height="*"/>
+                  <RowDefinition Height="*"/>
+                  <RowDefinition Height="*"/>
+                </Grid.RowDefinitions>
+                <Grid.ColumnDefinitions>
+                  <ColumnDefinition Width="*"/>
+                  <ColumnDefinition Width="*"/>
+                  <ColumnDefinition Width="*"/>
+                  <ColumnDefinition Width="*"/>
+                  <ColumnDefinition Width="*"/>
+                  <ColumnDefinition Width="*"/>
+                  <ColumnDefinition Width="*"/>
+                  <ColumnDefinition Width="*"/>
+                  <ColumnDefinition Width="*"/>
+                  <ColumnDefinition Width="*"/>
+                  <ColumnDefinition Width="*"/>
+                  <ColumnDefinition Width="*"/>
+                  <ColumnDefinition Width="*"/>
+                  <ColumnDefinition Width="*"/>
+                  <ColumnDefinition Width="*"/>
+                  <ColumnDefinition Width="*"/>
+                  <ColumnDefinition Width="*"/>
+                  <ColumnDefinition Width="*"/>
+                  <ColumnDefinition Width="*"/>
+                  <ColumnDefinition Width="*"/>
+                  <ColumnDefinition Width="*"/>
+                  <ColumnDefinition Width="*"/>
+                  <ColumnDefinition Width="*"/>
+                  <ColumnDefinition Width="*"/>
+                  <ColumnDefinition Width="*"/>
+                  <ColumnDefinition Width="*"/>
+                  <ColumnDefinition Width="*"/>
+                  <ColumnDefinition Width="*"/>
+                  <ColumnDefinition Width="*"/>
+                  <ColumnDefinition Width="*"/>
+                </Grid.ColumnDefinitions>
+              </Grid>
+            </ItemsPanelTemplate>
+          </ItemsControl.ItemsPanel>
+          <ItemsControl.ItemContainerStyle>
+            <Style>
+              <Setter Property="Grid.Column" Value="{Binding Col}" />
+              <Setter Property="Grid.Row" Value="{Binding Row}" />
+            </Style>
+          </ItemsControl.ItemContainerStyle>
+        </ItemsControl>
       </Grid>
     </DataTemplate>
 
