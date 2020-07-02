@@ -128,7 +128,9 @@ namespace Minesweeper.GameMenu {
       for (int i = 0; i < numMines; i++) {
         int index = rand.Next(0, tileNumbers.Count - 1);
         int randNumber = tileNumbers[index];
-        prGameTileCollection[randNumber] = new GameTileModel(true, false, false);
+        int row = randNumber / boardWidth;
+        int col = randNumber % boardWidth;
+        prGameTileCollection[randNumber] = new GameTileModel(row, col, true, false, false);
         tileNumbers.RemoveAt(index);
       }
 
@@ -136,7 +138,7 @@ namespace Minesweeper.GameMenu {
         for (int j = 0; j < boardWidth; j++) {
           int index = (i * boardWidth) + j;
           if (prGameTileCollection[index] == null) {
-            prGameTileCollection[index] = new GameTileModel();
+            prGameTileCollection[index] = new GameTileModel(i, j);
           }
         }
       }
@@ -164,9 +166,10 @@ namespace Minesweeper.GameMenu {
 
       if ((oldTile.IsFlagged != newTileIsFlagged) || (oldTile.IsSelected != newTileIsSelected)) {
         int index = prGameTileCollection.IndexOf(oldTile);
-        var newTile = new GameTileModel(newTileIsMine, newTileIsSelected, newTileIsFlagged);
+        var newTile = new GameTileModel(oldTile.Row, oldTile.Col, newTileIsMine, newTileIsSelected, newTileIsFlagged);
         prGameTileCollection[index] = newTile;
-        logger.Trace("Gametile altered at index %d\nOld Tile - %s\nNewTile - %s", index, oldTile.ToString(), newTile.ToString());
+        logger.Trace("Gametile altered at position [%d,%d], index %d\nOld Tile - %s\nNewTile - %s", 
+          oldTile.Row, oldTile.Col, index, oldTile.ToString(), newTile.ToString());
       }
     }
     private bool CanStartGame(object arg) { return true; }

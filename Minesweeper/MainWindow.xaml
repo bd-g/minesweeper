@@ -20,20 +20,49 @@
     </DataTemplate>
 
     <DataTemplate x:Key="GameBoardTileRow10x10">
-      <ItemsControl ItemsSource="{Binding}" ItemTemplate="{DynamicResource GameBoardSingleTile}">
-        <ItemsControl.ItemsPanel>
-          <ItemsPanelTemplate>
-            <wpfautogrid:AutoGrid RowCount="10" RowHeight="1*" ColumnCount="10" ColumnWidth="1*">
-
-            </wpfautogrid:AutoGrid>
-          </ItemsPanelTemplate>
-        </ItemsControl.ItemsPanel>
-      </ItemsControl>
+      
     </DataTemplate>
     
     <DataTemplate x:Key="10x10Board">
       <Grid>
-        <ItemsControl ItemsSource="{Binding Path=GameBoardCollection}" ItemTemplate="{DynamicResource GameBoardTileRow10x10}"/>
+        <ItemsControl ItemsSource="{Binding GameBoardCollection}" ItemTemplate="{DynamicResource GameBoardSingleTile}">
+          <ItemsControl.ItemsPanel>
+            <ItemsPanelTemplate>
+              <Grid>
+                <Grid.RowDefinitions>
+                  <RowDefinition Height="*"/>
+                  <RowDefinition Height="*"/>
+                  <RowDefinition Height="*"/>
+                  <RowDefinition Height="*"/>
+                  <RowDefinition Height="*"/>
+                  <RowDefinition Height="*"/>
+                  <RowDefinition Height="*"/>
+                  <RowDefinition Height="*"/>
+                  <RowDefinition Height="*"/>
+                  <RowDefinition Height="*"/>
+                </Grid.RowDefinitions>
+                <Grid.ColumnDefinitions>
+                  <ColumnDefinition Width="*"/>
+                  <ColumnDefinition Width="*"/>
+                  <ColumnDefinition Width="*"/>
+                  <ColumnDefinition Width="*"/>
+                  <ColumnDefinition Width="*"/>
+                  <ColumnDefinition Width="*"/>
+                  <ColumnDefinition Width="*"/>
+                  <ColumnDefinition Width="*"/>
+                  <ColumnDefinition Width="*"/>
+                  <ColumnDefinition Width="*"/>
+                </Grid.ColumnDefinitions>
+              </Grid>
+            </ItemsPanelTemplate>
+          </ItemsControl.ItemsPanel>
+          <ItemsControl.ItemContainerStyle>
+            <Style>
+              <Setter Property="Grid.Column" Value="{Binding Col}" />
+              <Setter Property="Grid.Row" Value="{Binding Row}" />
+            </Style>
+          </ItemsControl.ItemContainerStyle>
+        </ItemsControl>
       </Grid>
     </DataTemplate>
 
