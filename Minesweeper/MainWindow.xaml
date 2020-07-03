@@ -5,18 +5,45 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:diag="clr-namespace:System.Diagnostics;assembly=WindowsBase"
         xmlns:local="clr-namespace:Minesweeper"
+        xmlns:resources="clr-namespace:Minesweeper.Properties"
         xmlns:gamemenu="clr-namespace:Minesweeper.GameMenu"
-        xmlns:wpfautogrid="clr-namespace:WpfAutoGrid;assembly=WpfAutoGrid"
         mc:Ignorable="d"
         Title="Minesweeper" Height="450" Width="800">
   
   <Window.Resources>
+    <Style x:Key="BlankButton" TargetType="{x:Type Button}">
+      <Setter Property="Content" Value="{Binding Path=IsMine}"/>
+      <Setter Property="Margin" Value="1,1,1,1"/>
+    </Style>
+
+    <Image x:Key="FlagImage" x:Shared="False" Source="{Binding Source={x:Static resources:Pictures.flag}}"/>
+        
+    <Style x:Key="SelectedButton" TargetType="{x:Type Button}">
+      <Setter Property="Content" Value="{Binding Path=IsMine}"/>
+      <Setter Property="Margin" Value="1,1,1,1"/>
+      <Setter Property="Background" Value="GhostWhite"/>
+    </Style>
+
+    <Style x:Key="FlaggedButton" TargetType="{x:Type Button}">
+      <Setter Property="Content" Value="{StaticResource FlagImage}"/>
+      <Setter Property="Margin" Value="1,1,1,1"/>
+      <Setter Property="Background" Value="GhostWhite"/>
+    </Style>
+
     <DataTemplate x:Key="GameBoardSingleTile">
-      <Button Content="{Binding Path=IsSelected}" Margin="1,1,1,1"
-              Command="{Binding Path=DataContext.SelectTileCommand, 
-                        RelativeSource={RelativeSource Mode=FindAncestor, 
-                        AncestorType=Grid, AncestorLevel=2}}"
-              CommandParameter="{Binding}"/>
+      <Button x:Name="tileButton"
+                    Command="{Binding Path=DataContext.SelectTileCommand, 
+                              RelativeSource={RelativeSource Mode=FindAncestor, 
+                              AncestorType=Grid, AncestorLevel=2}}"
+                    CommandParameter="{Binding}"/>
+      <DataTemplate.Triggers>
+        <DataTrigger Binding="{Binding IsSelected}" Value="True">
+          <Setter Property="Style" TargetName="tileButton" Value="{DynamicResource FlaggedButton}"/>
+        </DataTrigger>
+        <DataTrigger Binding="{Binding IsSelected}" Value="False">
+          <Setter Property="Style" TargetName="tileButton" Value="{DynamicResource SelectedButton}"/>
+        </DataTrigger>
+      </DataTemplate.Triggers>
     </DataTemplate>
 
     <DataTemplate x:Key="10x10Board">
