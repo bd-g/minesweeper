@@ -22,6 +22,7 @@
     
     <Style x:Key="SelectedButton" TargetType="{x:Type Button}">
       <Setter Property="Content" Value="{Binding Path=NumMineNeighbors}"/>
+      <Setter Property="ContentStringFormat" Value="0;;#"/>
       <Setter Property="Margin" Value="1,1,1,1"/>
       <Setter Property="Background" Value="GhostWhite"/>
     </Style>
@@ -300,6 +301,20 @@
             </Style>
           </Button.Style>
         </Button>
+        <TextBlock Grid.Row="1" Grid.Column="1">
+          <TextBlock.Style>
+            <Style TargetType="TextBlock">
+              <Style.Triggers>
+                <DataTrigger Binding="{Binding Path=CurrentGameStatus}" Value="{x:Static gamemenu:GameStatus.Won}">
+                  <Setter Property="Text" Value="Congratulations, you've won!"/>
+                </DataTrigger>
+                <DataTrigger Binding="{Binding Path=CurrentGameStatus}" Value="{x:Static gamemenu:GameStatus.Lost}">
+                  <Setter Property="Text" Value="Sorry, you've lost. Try again maybe?"/>
+                </DataTrigger>
+              </Style.Triggers>
+            </Style>
+          </TextBlock.Style>
+        </TextBlock>
         <Button Grid.Row="1" Grid.Column="2" Content="End Game" Command="{Binding Path=EndGameCommand}" VerticalAlignment="Center" HorizontalAlignment="Center" />
 
         <ContentControl Grid.Row="0" Grid.Column="1" Style="{StaticResource GameBoardSize}" Content="{Binding}"/>

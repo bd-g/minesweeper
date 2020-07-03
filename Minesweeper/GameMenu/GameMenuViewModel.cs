@@ -27,6 +27,13 @@ namespace Minesweeper.GameMenu {
     Intermediate,
     Expert
   }
+
+  public enum GameStatus
+  {
+    InProgress,
+    Won,
+    Lost
+  }
   #endregion
   class GameMenuViewModel : CustomNotifyPropertyChanged {
 
@@ -34,6 +41,8 @@ namespace Minesweeper.GameMenu {
     private ObservableCollection<GameTileModel> prGameTileCollection;
     private ViewState currentState;
     private GameDifficulty currentDifficulty;
+    private GameStatus gameStatus;
+
     private bool isSettingFlag;
     private static readonly NLog.Logger logger = NLog.LogManager.GetCurrentClassLogger();
     #endregion
@@ -62,11 +71,37 @@ namespace Minesweeper.GameMenu {
     public ICommand SetFlagCommand { get; private set; }
     public ICommand SelectTileCommand { get; private set; }
     public ViewState CurrentState { 
-      get  { 
+      get 
+      { 
         return currentState;
       } 
-      set {
+      set 
+      {
         currentState = value;
+        OnPropertyChanged();
+      }
+    }
+    public GameStatus CurrentGameStatus
+    {
+      get
+      {
+        return gameStatus;
+      }
+      set
+      {
+        gameStatus = value;
+        OnPropertyChanged();
+      }
+    }
+    public GameDifficulty CurrentDifficulty
+    {
+      get
+      {
+        return currentDifficulty;
+      }
+      set
+      {
+        currentDifficulty = value;
         OnPropertyChanged();
       }
     }
@@ -76,16 +111,6 @@ namespace Minesweeper.GameMenu {
         return prGameTileCollection;
       }
     }
-
-    public GameDifficulty CurrentDifficulty {
-      get {
-        return currentDifficulty;
-      }
-      set {
-        currentDifficulty = value;
-        OnPropertyChanged();
-      }
-    } 
 
     public bool IsSettingFlag {
       get {
@@ -142,8 +167,9 @@ namespace Minesweeper.GameMenu {
         }
       }
 
-      CurrentState = ViewState.Game;
+
       ResetDefaults();
+      CurrentState = ViewState.Game;
     }
 
     private void EndGame(object arg)
@@ -173,6 +199,13 @@ namespace Minesweeper.GameMenu {
         if (newTile.NumMineNeighbors == 0 && !IsSettingFlag) {
           SelectNeighborsWithNoNeighboringMines(newTile);
         }
+        if (CheckForGameWin()) {
+          RevealAllTiles();
+          CurrentGameStatus = GameStatus.Won;
+        } else if (newTile.IsMine && newTile.IsSelected) {
+          RevealAllTiles();
+          CurrentGameStatus = GameStatus.Lost;
+        }
       }
     }
 
@@ -187,6 +220,7 @@ namespace Minesweeper.GameMenu {
     {
       IsSettingFlag = false;
       CurrentDifficulty = GameDifficulty.Beginner;
+      CurrentGameStatus = GameStatus.InProgress;
     }
 
     private int GetNumMineNeighbors(int row, int col, int boardWidth, int boardHeight)
@@ -288,6 +322,26 @@ namespace Minesweeper.GameMenu {
         int lowerIndex = ((row + 1) * boardWidth) + col;
         if (prGameTileCollection[lowerIndex].NumMineNeighbors == 0) {
           SelectTile(prGameTileCollection[lowerIndex]);
+        }
+      }
+    }
+
+    private bool CheckForGameWin()
+    {
+      foreach (GameTileModel tile in prGameTileCollection) {
+        if (!tile.IsMine && !tile.IsSelected) {
+          return false;
+        }
+      }
+      return true;
+    }
+
+    private void RevealAllTiles()
+    {
+      for(int i = 0; i < GameBoardCollection.Count; i++) {
+        if (!GameBoardCollection[i].IsSelected) {
+          GameTileModel oldTile = GameBoardCollection[i];
+          GameBoardCollection[i] = new GameTileModel(oldTile.Row, oldTile.Col, oldTile.IsMine, true, oldTile.IsFlagged, oldTile.NumMineNeighbors);
         }
       }
     }
