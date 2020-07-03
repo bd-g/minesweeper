@@ -196,8 +196,8 @@ namespace Minesweeper.GameMenu {
     }
     private bool CanStartGame(object arg) { return true; }
     private bool CanEndGame(object arg) { return true; }
-    private bool CanSetFlag(object arg) { return CurrentState == ViewState.Game; }
-    private bool CanSelectTile(object arg) { return true; }
+    private bool CanSetFlag(object arg) { return CurrentState == ViewState.Game && CurrentGameStatus == GameStatus.InProgress; }
+    private bool CanSelectTile(object arg) { return CurrentGameStatus == GameStatus.InProgress; }
     private void ResetDefaults()
     {
       IsSettingFlag = false;
