@@ -14,14 +14,17 @@ namespace Minesweeper.GamePlay {
     #region Classes
   public class GameTileModel {
     private readonly Guid guid;
-    public GameTileModel(int row, int col, bool IsMine = false, bool IsSelected = false, bool IsFlagged = false) {
+    public GameTileModel(int row, int col, bool IsMine = false, bool IsSelected = false, bool IsFlagged = false, int numMineNeighbors = 0) {
       this.Row = row;
       this.Col = col;
       this.IsMine = IsMine;
       this.IsSelected = IsSelected;
       this.IsFlagged = IsFlagged;
+      this.NumMineNeighbors = numMineNeighbors;
       guid = Guid.NewGuid();
     }
+
+    public int NumMineNeighbors { get; set; }
     public int Row { get; }
     public int Col { get; }
     public bool IsMine { get; }

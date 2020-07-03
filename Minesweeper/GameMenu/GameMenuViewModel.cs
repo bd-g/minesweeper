@@ -118,7 +118,7 @@ namespace Minesweeper.GameMenu {
       prGameTileCollection = new ObservableCollection<GameTileModel>();
       for (int i = 0; i < boardHeight; i++) {
         for (int j = 0; j < boardWidth; j++) {
-          prGameTileCollection.Add(null);
+          prGameTileCollection.Add(new GameTileModel(i, j));
         }
       }
 
@@ -137,11 +137,11 @@ namespace Minesweeper.GameMenu {
       for (int i = 0; i < boardHeight; i++) {
         for (int j = 0; j < boardWidth; j++) {
           int index = (i * boardWidth) + j;
-          if (prGameTileCollection[index] == null) {
-            prGameTileCollection[index] = new GameTileModel(i, j);
-          }
+          int numMineNeighbors = GetNumMineNeighbors(i ,j, boardWidth, boardHeight);
+          prGameTileCollection[index].NumMineNeighbors = numMineNeighbors;
         }
       }
+
       CurrentState = ViewState.Game;
       ResetDefaults();
     }
@@ -166,12 +166,16 @@ namespace Minesweeper.GameMenu {
 
       if ((oldTile.IsFlagged != newTileIsFlagged) || (oldTile.IsSelected != newTileIsSelected)) {
         int index = prGameTileCollection.IndexOf(oldTile);
-        var newTile = new GameTileModel(oldTile.Row, oldTile.Col, newTileIsMine, newTileIsSelected, newTileIsFlagged);
+        var newTile = new GameTileModel(oldTile.Row, oldTile.Col, newTileIsMine, newTileIsSelected, newTileIsFlagged, oldTile.NumMineNeighbors);
         prGameTileCollection[index] = newTile;
         logger.Trace("Gametile altered at position [%d,%d], index %d\nOld Tile - %s\nNewTile - %s", 
           oldTile.Row, oldTile.Col, index, oldTile.ToString(), newTile.ToString());
+        if (newTile.NumMineNeighbors == 0 && !IsSettingFlag) {
+          SelectNeighborsWithNoNeighboringMines(newTile);
+        }
       }
     }
+
     private bool CanStartGame(object arg) { return true; }
 
     private bool CanEndGame(object arg) { return true; }
@@ -183,6 +187,109 @@ namespace Minesweeper.GameMenu {
     {
       IsSettingFlag = false;
       CurrentDifficulty = GameDifficulty.Beginner;
+    }
+
+    private int GetNumMineNeighbors(int row, int col, int boardWidth, int boardHeight)
+    {
+      int numMineNeighbors = 0;
+
+      if (row - 1 >= 0 && col - 1 >= 0) {
+        int upperLeftIndex = ((row - 1) * boardWidth) + col - 1;
+        if (prGameTileCollection[upperLeftIndex].IsMine) {
+          numMineNeighbors++;
+        }
+      }
+      if (row - 1 >= 0) {
+        int upperIndex = ((row - 1) * boardWidth) + col;
+        if (prGameTileCollection[upperIndex].IsMine) {
+          numMineNeighbors++;
+        }
+      }
+      if (row - 1 >= 0 && col + 1 < boardWidth) {
+        int upperRightIndex = ((row - 1) * boardWidth) + col + 1;
+        if (prGameTileCollection[upperRightIndex].IsMine) {
+          numMineNeighbors++;
+        }
+      }
+      if (col - 1 >= 0) {
+        int leftIndex = (row * boardWidth) + col - 1;
+        if (prGameTileCollection[leftIndex].IsMine) {
+          numMineNeighbors++;
+        }
+      }
+      if (col + 1 < boardWidth) {
+        int rightIndex = (row * boardWidth) + col + 1;
+        if (prGameTileCollection[rightIndex].IsMine) {
+          numMineNeighbors++;
+        }
+      }
+      if (row + 1 < boardHeight && col - 1 >= 0) {
+        int lowerLeftIndex = ((row + 1) * boardWidth) + col - 1;
+        if (prGameTileCollection[lowerLeftIndex].IsMine) {
+          numMineNeighbors++;
+        }
+      }
+      if (row + 1 < boardHeight) {
+        int lowerIndex = ((row + 1) * boardWidth) + col;
+        if (prGameTileCollection[lowerIndex].IsMine) {
+          numMineNeighbors++;
+        }
+      }
+      if (row + 1 < boardHeight && col + 1 < boardWidth) {
+        int lowerRightIndex = ((row + 1) * boardWidth) + col + 1;
+        if (prGameTileCollection[lowerRightIndex].IsMine) {
+          numMineNeighbors++;
+        }
+      }
+
+      return numMineNeighbors;
+    }
+
+    private void SelectNeighborsWithNoNeighboringMines(GameTileModel newestSelectedTile)
+    {
+      int row = newestSelectedTile.Row;
+      int col = newestSelectedTile.Col;
+      int boardWidth = 0;
+      int boardHeight = 0;
+      switch (CurrentDifficulty) {
+        case GameDifficulty.Beginner:
+          boardWidth = 10;
+          boardHeight = 10;
+          break;
+        case GameDifficulty.Intermediate:
+          boardWidth = 16;
+          boardHeight = 16;
+          break;
+        case GameDifficulty.Expert:
+          boardWidth = 30;
+          boardHeight = 16;
+          break;
+      }                             
+      
+      if (row - 1 >= 0) {
+        int upperIndex = ((row - 1) * boardWidth) + col;
+        if (prGameTileCollection[upperIndex].NumMineNeighbors == 0) {
+          SelectTile(prGameTileCollection[upperIndex]);
+        }
+      }
+      if (col - 1 >= 0) {
+        int leftIndex = (row * boardWidth) + col - 1;
+        if (prGameTileCollection[leftIndex].NumMineNeighbors == 0) {
+          SelectTile(prGameTileCollection[leftIndex]);
+        }
+      }
+      if (col + 1 < boardWidth) {
+        int rightIndex = (row * boardWidth) + col + 1;
+        if (prGameTileCollection[rightIndex].NumMineNeighbors == 0) {
+          SelectTile(prGameTileCollection[rightIndex]);
+        }
+      }
+      if (row + 1 < boardHeight) {
+        int lowerIndex = ((row + 1) * boardWidth) + col;
+        if (prGameTileCollection[lowerIndex].NumMineNeighbors == 0) {
+          SelectTile(prGameTileCollection[lowerIndex]);
+        }
+      }
     }
     #endregion
   }

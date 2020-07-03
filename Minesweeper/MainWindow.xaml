@@ -11,23 +11,28 @@
         Title="Minesweeper" Height="450" Width="800">
   
   <Window.Resources>
-    <Style x:Key="BlankButton" TargetType="{x:Type Button}">
-      <Setter Property="Content" Value="{Binding Path=IsMine}"/>
-      <Setter Property="Margin" Value="1,1,1,1"/>
-    </Style>
-
     <Image x:Key="FlagImage" x:Shared="False" Source="{Binding Source={x:Static resources:Pictures.flag}}"/>
-        
-    <Style x:Key="SelectedButton" TargetType="{x:Type Button}">
-      <Setter Property="Content" Value="{Binding Path=IsMine}"/>
+    <Image x:Key="MineImage" x:Shared="False" Source="{Binding Source={x:Static resources:Pictures.mine}}"/>
+
+    <Style x:Key="MineButton" TargetType="{x:Type Button}">
+      <Setter Property="Content" Value="{StaticResource MineImage}"/>
       <Setter Property="Margin" Value="1,1,1,1"/>
       <Setter Property="Background" Value="GhostWhite"/>
+    </Style>
+    
+    <Style x:Key="SelectedButton" TargetType="{x:Type Button}">
+      <Setter Property="Content" Value="{Binding Path=NumMineNeighbors}"/>
+      <Setter Property="Margin" Value="1,1,1,1"/>
+      <Setter Property="Background" Value="GhostWhite"/>
+    </Style>
+
+    <Style x:Key="BlankButton" TargetType="{x:Type Button}">
+      <Setter Property="Margin" Value="1,1,1,1"/>
     </Style>
 
     <Style x:Key="FlaggedButton" TargetType="{x:Type Button}">
       <Setter Property="Content" Value="{StaticResource FlagImage}"/>
       <Setter Property="Margin" Value="1,1,1,1"/>
-      <Setter Property="Background" Value="GhostWhite"/>
     </Style>
 
     <DataTemplate x:Key="GameBoardSingleTile">
@@ -37,12 +42,34 @@
                               AncestorType=Grid, AncestorLevel=2}}"
                     CommandParameter="{Binding}"/>
       <DataTemplate.Triggers>
-        <DataTrigger Binding="{Binding IsSelected}" Value="True">
-          <Setter Property="Style" TargetName="tileButton" Value="{DynamicResource FlaggedButton}"/>
-        </DataTrigger>
-        <DataTrigger Binding="{Binding IsSelected}" Value="False">
+        <MultiDataTrigger>
+          <MultiDataTrigger.Conditions>
+            <Condition Binding="{Binding IsSelected}" Value="True"/>
+            <Condition Binding="{Binding IsMine}" Value="True"/>
+          </MultiDataTrigger.Conditions>
+          <Setter Property="Style" TargetName="tileButton" Value="{DynamicResource MineButton}"/>
+        </MultiDataTrigger>
+        <MultiDataTrigger>
+          <MultiDataTrigger.Conditions>
+            <Condition Binding="{Binding IsSelected}" Value="True"/>
+            <Condition Binding="{Binding IsMine}" Value="False"/>
+          </MultiDataTrigger.Conditions>
           <Setter Property="Style" TargetName="tileButton" Value="{DynamicResource SelectedButton}"/>
-        </DataTrigger>
+        </MultiDataTrigger>
+        <MultiDataTrigger>
+          <MultiDataTrigger.Conditions>
+            <Condition Binding="{Binding IsSelected}" Value="False"/>
+            <Condition Binding="{Binding IsFlagged}" Value="False"/>
+          </MultiDataTrigger.Conditions>
+          <Setter Property="Style" TargetName="tileButton" Value="{DynamicResource BlankButton}"/>
+        </MultiDataTrigger>
+        <MultiDataTrigger>
+          <MultiDataTrigger.Conditions>
+            <Condition Binding="{Binding IsSelected}" Value="False"/>
+            <Condition Binding="{Binding IsFlagged}" Value="True"/>
+          </MultiDataTrigger.Conditions>
+          <Setter Property="Style" TargetName="tileButton" Value="{DynamicResource FlaggedButton}"/>
+        </MultiDataTrigger>
       </DataTemplate.Triggers>
     </DataTemplate>
 
