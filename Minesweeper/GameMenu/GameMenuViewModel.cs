@@ -283,27 +283,19 @@ namespace Minesweeper.GameMenu {
       
       if (row - 1 >= 0) {
         int upperIndex = ((row - 1) * boardWidth) + col;
-        if (GameBoardCollection[upperIndex].NumMineNeighbors == 0) {
-          SelectTile(GameBoardCollection[upperIndex]);
-        }
+        SelectTile(GameBoardCollection[upperIndex]);
       }
       if (col - 1 >= 0) {
         int leftIndex = (row * boardWidth) + col - 1;
-        if (GameBoardCollection[leftIndex].NumMineNeighbors == 0) {
-          SelectTile(GameBoardCollection[leftIndex]);
-        }
+        SelectTile(GameBoardCollection[leftIndex]);
       }
       if (col + 1 < boardWidth) {
         int rightIndex = (row * boardWidth) + col + 1;
-        if (GameBoardCollection[rightIndex].NumMineNeighbors == 0) {
-          SelectTile(GameBoardCollection[rightIndex]);
-        }
+        SelectTile(GameBoardCollection[rightIndex]);
       }
       if (row + 1 < boardHeight) {
         int lowerIndex = ((row + 1) * boardWidth) + col;
-        if (GameBoardCollection[lowerIndex].NumMineNeighbors == 0) {
-          SelectTile(GameBoardCollection[lowerIndex]);
-        }
+        SelectTile(GameBoardCollection[lowerIndex]);
       }
     }
     private bool CheckForGameWin()
