@@ -38,11 +38,9 @@ namespace Minesweeper.GameMenu {
   class GameMenuViewModel : CustomNotifyPropertyChanged {
 
     #region Fields
-    private ObservableCollection<GameTileModel> prGameTileCollection;
     private ViewState currentState;
     private GameDifficulty currentDifficulty;
     private GameStatus gameStatus;
-
     private bool isSettingFlag;
     private static readonly NLog.Logger logger = NLog.LogManager.GetCurrentClassLogger();
     #endregion
@@ -65,7 +63,6 @@ namespace Minesweeper.GameMenu {
     #endregion
 
     #region Properties
-
     public ICommand StartGameCommand { get; private set; }
     public ICommand EndGameCommand { get; private set; }
     public ICommand SetFlagCommand { get; private set; }
@@ -105,13 +102,7 @@ namespace Minesweeper.GameMenu {
         OnPropertyChanged();
       }
     }
-
-    public ObservableCollection<GameTileModel> GameBoardCollection {
-      get {
-        return prGameTileCollection;
-      }
-    }
-
+    public ObservableCollection<GameTileModel> GameBoardCollection { get; private set; }
     public bool IsSettingFlag {
       get {
         return isSettingFlag;
@@ -140,10 +131,10 @@ namespace Minesweeper.GameMenu {
         boardWidth = 30;
         numMines = 99;
       }
-      prGameTileCollection = new ObservableCollection<GameTileModel>();
+      GameBoardCollection = new ObservableCollection<GameTileModel>();
       for (int i = 0; i < boardHeight; i++) {
         for (int j = 0; j < boardWidth; j++) {
-          prGameTileCollection.Add(new GameTileModel(i, j));
+          GameBoardCollection.Add(new GameTileModel(i, j));
         }
       }
 
@@ -155,7 +146,7 @@ namespace Minesweeper.GameMenu {
         int randNumber = tileNumbers[index];
         int row = randNumber / boardWidth;
         int col = randNumber % boardWidth;
-        prGameTileCollection[randNumber] = new GameTileModel(row, col, true, false, false);
+        GameBoardCollection[randNumber] = new GameTileModel(row, col, true, false, false);
         tileNumbers.RemoveAt(index);
       }
 
@@ -163,25 +154,21 @@ namespace Minesweeper.GameMenu {
         for (int j = 0; j < boardWidth; j++) {
           int index = (i * boardWidth) + j;
           int numMineNeighbors = GetNumMineNeighbors(i ,j, boardWidth, boardHeight);
-          prGameTileCollection[index].NumMineNeighbors = numMineNeighbors;
+          GameBoardCollection[index].NumMineNeighbors = numMineNeighbors;
         }
       }
 
-
-      ResetDefaults();
       CurrentState = ViewState.Game;
     }
-
     private void EndGame(object arg)
     {
+      ResetDefaults();
       CurrentState = ViewState.Menu;
     }
-
     private void SetFlag(object arg)
     {
       IsSettingFlag = !IsSettingFlag;
     }
-
     private void SelectTile(object arg)
     {
       GameTileModel oldTile = (GameTileModel)arg;
@@ -191,16 +178,15 @@ namespace Minesweeper.GameMenu {
       bool newTileIsSelected = oldTile.IsSelected || !IsSettingFlag;
 
       if ((oldTile.IsFlagged != newTileIsFlagged) || (oldTile.IsSelected != newTileIsSelected)) {
-        int index = prGameTileCollection.IndexOf(oldTile);
+        int index = GameBoardCollection.IndexOf(oldTile);
         var newTile = new GameTileModel(oldTile.Row, oldTile.Col, newTileIsMine, newTileIsSelected, newTileIsFlagged, oldTile.NumMineNeighbors);
-        prGameTileCollection[index] = newTile;
+        GameBoardCollection[index] = newTile;
         logger.Trace("Gametile altered at position [%d,%d], index %d\nOld Tile - %s\nNewTile - %s", 
           oldTile.Row, oldTile.Col, index, oldTile.ToString(), newTile.ToString());
         if (newTile.NumMineNeighbors == 0 && !IsSettingFlag) {
           SelectNeighborsWithNoNeighboringMines(newTile);
         }
         if (CheckForGameWin()) {
-          RevealAllTiles();
           CurrentGameStatus = GameStatus.Won;
         } else if (newTile.IsMine && newTile.IsSelected) {
           RevealAllTiles();
@@ -208,77 +194,72 @@ namespace Minesweeper.GameMenu {
         }
       }
     }
-
     private bool CanStartGame(object arg) { return true; }
-
     private bool CanEndGame(object arg) { return true; }
-
     private bool CanSetFlag(object arg) { return CurrentState == ViewState.Game; }
-
     private bool CanSelectTile(object arg) { return true; }
     private void ResetDefaults()
     {
       IsSettingFlag = false;
       CurrentDifficulty = GameDifficulty.Beginner;
       CurrentGameStatus = GameStatus.InProgress;
+      GameBoardCollection = null;
     }
-
     private int GetNumMineNeighbors(int row, int col, int boardWidth, int boardHeight)
     {
       int numMineNeighbors = 0;
 
       if (row - 1 >= 0 && col - 1 >= 0) {
         int upperLeftIndex = ((row - 1) * boardWidth) + col - 1;
-        if (prGameTileCollection[upperLeftIndex].IsMine) {
+        if (GameBoardCollection[upperLeftIndex].IsMine) {
           numMineNeighbors++;
         }
       }
       if (row - 1 >= 0) {
         int upperIndex = ((row - 1) * boardWidth) + col;
-        if (prGameTileCollection[upperIndex].IsMine) {
+        if (GameBoardCollection[upperIndex].IsMine) {
           numMineNeighbors++;
         }
       }
       if (row - 1 >= 0 && col + 1 < boardWidth) {
         int upperRightIndex = ((row - 1) * boardWidth) + col + 1;
-        if (prGameTileCollection[upperRightIndex].IsMine) {
+        if (GameBoardCollection[upperRightIndex].IsMine) {
           numMineNeighbors++;
         }
       }
       if (col - 1 >= 0) {
         int leftIndex = (row * boardWidth) + col - 1;
-        if (prGameTileCollection[leftIndex].IsMine) {
+        if (GameBoardCollection[leftIndex].IsMine) {
           numMineNeighbors++;
         }
       }
       if (col + 1 < boardWidth) {
         int rightIndex = (row * boardWidth) + col + 1;
-        if (prGameTileCollection[rightIndex].IsMine) {
+        if (GameBoardCollection[rightIndex].IsMine) {
           numMineNeighbors++;
         }
       }
       if (row + 1 < boardHeight && col - 1 >= 0) {
         int lowerLeftIndex = ((row + 1) * boardWidth) + col - 1;
-        if (prGameTileCollection[lowerLeftIndex].IsMine) {
+        if (GameBoardCollection[lowerLeftIndex].IsMine) {
           numMineNeighbors++;
         }
       }
       if (row + 1 < boardHeight) {
         int lowerIndex = ((row + 1) * boardWidth) + col;
-        if (prGameTileCollection[lowerIndex].IsMine) {
+        if (GameBoardCollection[lowerIndex].IsMine) {
           numMineNeighbors++;
         }
       }
       if (row + 1 < boardHeight && col + 1 < boardWidth) {
         int lowerRightIndex = ((row + 1) * boardWidth) + col + 1;
-        if (prGameTileCollection[lowerRightIndex].IsMine) {
+        if (GameBoardCollection[lowerRightIndex].IsMine) {
           numMineNeighbors++;
         }
       }
 
       return numMineNeighbors;
     }
-
     private void SelectNeighborsWithNoNeighboringMines(GameTileModel newestSelectedTile)
     {
       int row = newestSelectedTile.Row;
@@ -302,40 +283,38 @@ namespace Minesweeper.GameMenu {
       
       if (row - 1 >= 0) {
         int upperIndex = ((row - 1) * boardWidth) + col;
-        if (prGameTileCollection[upperIndex].NumMineNeighbors == 0) {
-          SelectTile(prGameTileCollection[upperIndex]);
+        if (GameBoardCollection[upperIndex].NumMineNeighbors == 0) {
+          SelectTile(GameBoardCollection[upperIndex]);
         }
       }
       if (col - 1 >= 0) {
         int leftIndex = (row * boardWidth) + col - 1;
-        if (prGameTileCollection[leftIndex].NumMineNeighbors == 0) {
-          SelectTile(prGameTileCollection[leftIndex]);
+        if (GameBoardCollection[leftIndex].NumMineNeighbors == 0) {
+          SelectTile(GameBoardCollection[leftIndex]);
         }
       }
       if (col + 1 < boardWidth) {
         int rightIndex = (row * boardWidth) + col + 1;
-        if (prGameTileCollection[rightIndex].NumMineNeighbors == 0) {
-          SelectTile(prGameTileCollection[rightIndex]);
+        if (GameBoardCollection[rightIndex].NumMineNeighbors == 0) {
+          SelectTile(GameBoardCollection[rightIndex]);
         }
       }
       if (row + 1 < boardHeight) {
         int lowerIndex = ((row + 1) * boardWidth) + col;
-        if (prGameTileCollection[lowerIndex].NumMineNeighbors == 0) {
-          SelectTile(prGameTileCollection[lowerIndex]);
+        if (GameBoardCollection[lowerIndex].NumMineNeighbors == 0) {
+          SelectTile(GameBoardCollection[lowerIndex]);
         }
       }
     }
-
     private bool CheckForGameWin()
     {
-      foreach (GameTileModel tile in prGameTileCollection) {
+      foreach (GameTileModel tile in GameBoardCollection) {
         if (!tile.IsMine && !tile.IsSelected) {
           return false;
         }
       }
       return true;
     }
-
     private void RevealAllTiles()
     {
       for(int i = 0; i < GameBoardCollection.Count; i++) {

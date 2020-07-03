@@ -6,6 +6,7 @@
         xmlns:diag="clr-namespace:System.Diagnostics;assembly=WindowsBase"
         xmlns:local="clr-namespace:Minesweeper"
         xmlns:resources="clr-namespace:Minesweeper.Properties"
+        xmlns:utils="clr-namespace:Minesweeper.Utils"
         xmlns:gamemenu="clr-namespace:Minesweeper.GameMenu"
         mc:Ignorable="d"
         Title="Minesweeper" Height="450" Width="800">
@@ -48,35 +49,35 @@
             <Condition Binding="{Binding IsSelected}" Value="True"/>
             <Condition Binding="{Binding IsMine}" Value="True"/>
           </MultiDataTrigger.Conditions>
-          <Setter Property="Style" TargetName="tileButton" Value="{DynamicResource MineButton}"/>
+          <Setter Property="Style" TargetName="tileButton" Value="{StaticResource MineButton}"/>
         </MultiDataTrigger>
         <MultiDataTrigger>
           <MultiDataTrigger.Conditions>
             <Condition Binding="{Binding IsSelected}" Value="True"/>
             <Condition Binding="{Binding IsMine}" Value="False"/>
           </MultiDataTrigger.Conditions>
-          <Setter Property="Style" TargetName="tileButton" Value="{DynamicResource SelectedButton}"/>
+          <Setter Property="Style" TargetName="tileButton" Value="{StaticResource SelectedButton}"/>
         </MultiDataTrigger>
         <MultiDataTrigger>
           <MultiDataTrigger.Conditions>
             <Condition Binding="{Binding IsSelected}" Value="False"/>
             <Condition Binding="{Binding IsFlagged}" Value="False"/>
           </MultiDataTrigger.Conditions>
-          <Setter Property="Style" TargetName="tileButton" Value="{DynamicResource BlankButton}"/>
+          <Setter Property="Style" TargetName="tileButton" Value="{StaticResource BlankButton}"/>
         </MultiDataTrigger>
         <MultiDataTrigger>
           <MultiDataTrigger.Conditions>
             <Condition Binding="{Binding IsSelected}" Value="False"/>
             <Condition Binding="{Binding IsFlagged}" Value="True"/>
           </MultiDataTrigger.Conditions>
-          <Setter Property="Style" TargetName="tileButton" Value="{DynamicResource FlaggedButton}"/>
+          <Setter Property="Style" TargetName="tileButton" Value="{StaticResource FlaggedButton}"/>
         </MultiDataTrigger>
       </DataTemplate.Triggers>
     </DataTemplate>
 
     <DataTemplate x:Key="10x10Board">
       <Grid>
-        <ItemsControl ItemsSource="{Binding GameBoardCollection}" ItemTemplate="{DynamicResource GameBoardSingleTile}">
+        <ItemsControl ItemsSource="{Binding GameBoardCollection}" ItemTemplate="{StaticResource GameBoardSingleTile}">
           <ItemsControl.ItemsPanel>
             <ItemsPanelTemplate>
               <Grid>
@@ -119,7 +120,7 @@
 
     <DataTemplate x:Key="16x16Board">
       <Grid>
-        <ItemsControl ItemsSource="{Binding GameBoardCollection}" ItemTemplate="{DynamicResource GameBoardSingleTile}">
+        <ItemsControl ItemsSource="{Binding GameBoardCollection}" ItemTemplate="{StaticResource GameBoardSingleTile}">
           <ItemsControl.ItemsPanel>
             <ItemsPanelTemplate>
               <Grid>
@@ -174,7 +175,7 @@
 
     <DataTemplate x:Key="16x30Board">
       <Grid>
-        <ItemsControl ItemsSource="{Binding GameBoardCollection}" ItemTemplate="{DynamicResource GameBoardSingleTile}">
+        <ItemsControl ItemsSource="{Binding GameBoardCollection}" ItemTemplate="{StaticResource GameBoardSingleTile}">
           <ItemsControl.ItemsPanel>
             <ItemsPanelTemplate>
               <Grid>
@@ -270,6 +271,36 @@
           <ColumnDefinition Width="1*"/>
           <ColumnDefinition Width="1*"/>
         </Grid.ColumnDefinitions>
+        <StackPanel Grid.Row="0" Grid.Column="2" Grid.ColumnSpan="3"
+                    HorizontalAlignment="Center" VerticalAlignment="Center">
+          <StackPanel.Resources>
+            <utils:EnumToBooleanConverter x:Key="ComparisonConverter" />
+          </StackPanel.Resources>
+          <TextBlock FontSize="45" TextAlignment="Center">
+            MINESWEEPER<LineBreak/>
+          </TextBlock>
+          <TextBlock TextAlignment="Center">
+            Custom made by Brent George<LineBreak/>
+            <LineBreak/>
+            Choose your game difficulty:
+            <LineBreak/>
+          </TextBlock>
+          <RadioButton HorizontalAlignment="Center" GroupName="difficultyLevel" VerticalContentAlignment="Center"
+                       IsChecked="{Binding Path=CurrentDifficulty, Converter={StaticResource ComparisonConverter},
+                        ConverterParameter={x:Static gamemenu:GameDifficulty.Beginner}}" >
+            <Label Content="Beginner" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+          </RadioButton>
+          <RadioButton HorizontalAlignment="Center" GroupName="difficultyLevel" VerticalContentAlignment="Center"
+                       IsChecked="{Binding Path=CurrentDifficulty, Converter={StaticResource ComparisonConverter},
+                        ConverterParameter={x:Static gamemenu:GameDifficulty.Intermediate}}" >
+            <Label Content="Intermediate"/>
+          </RadioButton>
+          <RadioButton HorizontalAlignment="Center" GroupName="difficultyLevel" VerticalContentAlignment="Center"
+                       IsChecked="{Binding Path=CurrentDifficulty, Converter={StaticResource ComparisonConverter},
+                        ConverterParameter={x:Static gamemenu:GameDifficulty.Expert}}" >
+            <Label Content="Expert"/>
+          </RadioButton>
+          </StackPanel>
         <Button Grid.Row="1" Grid.Column="3" Content="Start Game" Command="{Binding Path=StartGameCommand}" VerticalAlignment="Center" HorizontalAlignment="Center"/>
       </Grid>
     </DataTemplate>
@@ -294,14 +325,15 @@
                   <Setter Property="FontWeight" Value="Bold"/>
                 </DataTrigger>
                 <DataTrigger Binding="{Binding Path=IsSettingFlag}" Value="False">
-                  <Setter Property="Background" Value="{DynamicResource {x:Static SystemColors.ControlBrushKey}}"/>
+                  <Setter Property="Background" Value="{StaticResource {x:Static SystemColors.ControlBrushKey}}"/>
                   <Setter Property="FontWeight" Value="Normal"/>
                 </DataTrigger>
               </Style.Triggers>
             </Style>
           </Button.Style>
         </Button>
-        <TextBlock Grid.Row="1" Grid.Column="1">
+        <TextBlock Grid.Row="1" Grid.Column="1" HorizontalAlignment="Center" VerticalAlignment="Center"
+                   FontSize="18">
           <TextBlock.Style>
             <Style TargetType="TextBlock">
               <Style.Triggers>
