@@ -5,9 +5,9 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:resources="clr-namespace:Minesweeper.Properties"
         xmlns:utils="clr-namespace:Minesweeper.Utils"
-        xmlns:gamemenu="clr-namespace:Minesweeper.GameMenu"
+        xmlns:gameplay="clr-namespace:Minesweeper.GamePlay"
         mc:Ignorable="d"
-        Title="Minesweeper" Height="450" Width="800">
+        Title="Minesweeper" Height="450" Width="800" Icon="{Binding Source={x:Static resources:Pictures.mine}}">
   
   <Window.Resources>
     <Image x:Key="FlagImage" x:Shared="False" Source="{Binding Source={x:Static resources:Pictures.flag}}"/>
@@ -242,67 +242,18 @@
 
     <Style x:Key="GameBoardSize" TargetType="{x:Type ContentControl}">
       <Style.Triggers>
-        <DataTrigger Binding="{Binding Path=CurrentDifficulty}" Value="{x:Static gamemenu:GameDifficulty.Beginner}">
+        <DataTrigger Binding="{Binding Path=CurrentDifficulty}" Value="{x:Static gameplay:GameDifficulty.Beginner}">
           <Setter Property="ContentTemplate" Value="{StaticResource 10x10Board}"/>
         </DataTrigger>
-        <DataTrigger Binding="{Binding Path=CurrentDifficulty}" Value="{x:Static gamemenu:GameDifficulty.Intermediate}">
+        <DataTrigger Binding="{Binding Path=CurrentDifficulty}" Value="{x:Static gameplay:GameDifficulty.Intermediate}">
           <Setter Property="ContentTemplate" Value="{StaticResource 16x16Board}"/>
         </DataTrigger>
-        <DataTrigger Binding="{Binding Path=CurrentDifficulty}" Value="{x:Static gamemenu:GameDifficulty.Expert}">
+        <DataTrigger Binding="{Binding Path=CurrentDifficulty}" Value="{x:Static gameplay:GameDifficulty.Expert}">
           <Setter Property="ContentTemplate" Value="{StaticResource 16x30Board}"/>
         </DataTrigger>
       </Style.Triggers>
     </Style>
     
-    <DataTemplate x:Key="MenuContent">
-      <Grid Name="MenuGrid">
-        <Grid.RowDefinitions>
-          <RowDefinition Height="10*" />
-          <RowDefinition Height="1*" />
-        </Grid.RowDefinitions>
-        <Grid.ColumnDefinitions>
-          <ColumnDefinition Width="1*"/>
-          <ColumnDefinition Width="1*"/>
-          <ColumnDefinition Width="1*"/>
-          <ColumnDefinition Width="1*"/>
-          <ColumnDefinition Width="1*"/>
-          <ColumnDefinition Width="1*"/>
-          <ColumnDefinition Width="1*"/>
-        </Grid.ColumnDefinitions>
-        <StackPanel Grid.Row="0" Grid.Column="2" Grid.ColumnSpan="3"
-                    HorizontalAlignment="Center" VerticalAlignment="Center">
-          <StackPanel.Resources>
-            <utils:EnumToBooleanConverter x:Key="ComparisonConverter" />
-          </StackPanel.Resources>
-          <TextBlock FontSize="45" TextAlignment="Center">
-            MINESWEEPER<LineBreak/>
-          </TextBlock>
-          <TextBlock TextAlignment="Center">
-            Custom made by Brent George<LineBreak/>
-            <LineBreak/>
-            Choose your game difficulty:
-            <LineBreak/>
-          </TextBlock>
-          <RadioButton HorizontalAlignment="Center" GroupName="difficultyLevel" VerticalContentAlignment="Center"
-                       IsChecked="{Binding Path=CurrentDifficulty, Converter={StaticResource ComparisonConverter},
-                        ConverterParameter={x:Static gamemenu:GameDifficulty.Beginner}}" >
-            <Label Content="Beginner" HorizontalAlignment="Center" VerticalAlignment="Center"/>
-          </RadioButton>
-          <RadioButton HorizontalAlignment="Center" GroupName="difficultyLevel" VerticalContentAlignment="Center"
-                       IsChecked="{Binding Path=CurrentDifficulty, Converter={StaticResource ComparisonConverter},
-                        ConverterParameter={x:Static gamemenu:GameDifficulty.Intermediate}}" >
-            <Label Content="Intermediate"/>
-          </RadioButton>
-          <RadioButton HorizontalAlignment="Center" GroupName="difficultyLevel" VerticalContentAlignment="Center"
-                       IsChecked="{Binding Path=CurrentDifficulty, Converter={StaticResource ComparisonConverter},
-                        ConverterParameter={x:Static gamemenu:GameDifficulty.Expert}}" >
-            <Label Content="Expert"/>
-          </RadioButton>
-          </StackPanel>
-        <Button Grid.Row="1" Grid.Column="3" Content="Start Game" Command="{Binding Path=StartGameCommand}" VerticalAlignment="Center" HorizontalAlignment="Center"/>
-      </Grid>
-    </DataTemplate>
-
     <DataTemplate x:Key="GameContent">
       <Grid Name="MainGrid">
         <Grid.RowDefinitions>
@@ -314,7 +265,10 @@
           <ColumnDefinition Width="5*"/>
           <ColumnDefinition Width="1*"/>
         </Grid.ColumnDefinitions>
-        <Button Grid.Row="1" Grid.Column="0" Content="Set Flag" Command="{Binding Path=SetFlagCommand}" VerticalAlignment="Center" HorizontalAlignment="Center">
+        <Border BorderBrush="Black" BorderThickness="1" Background="LightGray" Grid.Row="0" Grid.Column="0" HorizontalAlignment="Stretch" VerticalAlignment="Bottom" Margin="10,10,10,5">
+          <TextBlock HorizontalAlignment="Center" FontSize="30" Foreground="Red" Text="{Binding NumberOfMinesRemainingToFlag}"/>
+        </Border>
+        <Button Grid.Row="1" Grid.Column="0" Content="Set Flag" Command="{Binding Path=SetFlagCommand}" VerticalAlignment="Top" HorizontalAlignment="Stretch" Margin="10,0,10,5">
           <Button.Style>
             <Style TargetType="Button">
               <Style.Triggers>
@@ -335,28 +289,82 @@
           <TextBlock.Style>
             <Style TargetType="TextBlock">
               <Style.Triggers>
-                <DataTrigger Binding="{Binding Path=CurrentGameStatus}" Value="{x:Static gamemenu:GameStatus.Won}">
+                <DataTrigger Binding="{Binding Path=CurrentGameStatus}" Value="{x:Static gameplay:GameStatus.Won}">
                   <Setter Property="Text" Value="Congratulations, you've won!"/>
                 </DataTrigger>
-                <DataTrigger Binding="{Binding Path=CurrentGameStatus}" Value="{x:Static gamemenu:GameStatus.Lost}">
+                <DataTrigger Binding="{Binding Path=CurrentGameStatus}" Value="{x:Static gameplay:GameStatus.Lost}">
                   <Setter Property="Text" Value="Sorry, you've lost. Try again maybe?"/>
                 </DataTrigger>
               </Style.Triggers>
             </Style>
           </TextBlock.Style>
         </TextBlock>
-        <Button Grid.Row="1" Grid.Column="2" Content="End Game" Command="{Binding Path=EndGameCommand}" VerticalAlignment="Center" HorizontalAlignment="Center" />
+        <Button Grid.Row="1" Grid.Column="2" Content="End Game" Command="{Binding Path=EndGameCommand}" VerticalAlignment="Top" HorizontalAlignment="Stretch" Margin="10,0,10,5"/>
 
         <ContentControl Grid.Row="0" Grid.Column="1" Style="{StaticResource GameBoardSize}" Content="{Binding}"/>
       </Grid>
     </DataTemplate>
 
+    <DataTemplate x:Key="MenuContent">
+      <Grid Name="MenuGrid">
+        <Grid.RowDefinitions>
+          <RowDefinition Height="10*" />
+          <RowDefinition Height="1*" />
+        </Grid.RowDefinitions>
+        <Grid.ColumnDefinitions>
+          <ColumnDefinition Width="1*"/>
+          <ColumnDefinition Width="1*"/>
+          <ColumnDefinition Width="1*"/>
+          <ColumnDefinition Width="1*"/>
+          <ColumnDefinition Width="1*"/>
+          <ColumnDefinition Width="1*"/>
+          <ColumnDefinition Width="1*"/>
+        </Grid.ColumnDefinitions>
+        <Image Grid.Row="0" Grid.Column="0" Grid.ColumnSpan="2" Margin="40,40,40,40"
+               Source="{Binding Source={x:Static resources:Pictures.flag}}"/>
+        <Image Grid.Row="0" Grid.Column="5" Grid.ColumnSpan="2" Margin="40,40,40,40"
+               Source="{Binding Source={x:Static resources:Pictures.mine}}"/>
+
+        <StackPanel Grid.Row="0" Grid.Column="2" Grid.ColumnSpan="3"
+                    HorizontalAlignment="Center" VerticalAlignment="Center">
+          <StackPanel.Resources>
+            <utils:EnumToBooleanConverter x:Key="ComparisonConverter" />
+          </StackPanel.Resources>
+          <TextBlock FontSize="45" TextAlignment="Center">
+            MINESWEEPER<LineBreak/>
+          </TextBlock>
+          <TextBlock TextAlignment="Center">
+            Custom made by Brent George<LineBreak/>
+            <LineBreak/>
+            Choose your game difficulty:
+            <LineBreak/>
+          </TextBlock>
+          <RadioButton HorizontalAlignment="Center" GroupName="difficultyLevel" VerticalContentAlignment="Center"
+                       IsChecked="{Binding Path=CurrentDifficulty, Converter={StaticResource ComparisonConverter},
+                        ConverterParameter={x:Static gameplay:GameDifficulty.Beginner}}" >
+            <Label Content="Beginner" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+          </RadioButton>
+          <RadioButton HorizontalAlignment="Center" GroupName="difficultyLevel" VerticalContentAlignment="Center"
+                       IsChecked="{Binding Path=CurrentDifficulty, Converter={StaticResource ComparisonConverter},
+                        ConverterParameter={x:Static gameplay:GameDifficulty.Intermediate}}" >
+            <Label Content="Intermediate"/>
+          </RadioButton>
+          <RadioButton HorizontalAlignment="Center" GroupName="difficultyLevel" VerticalContentAlignment="Center"
+                       IsChecked="{Binding Path=CurrentDifficulty, Converter={StaticResource ComparisonConverter},
+                        ConverterParameter={x:Static gameplay:GameDifficulty.Expert}}" >
+            <Label Content="Expert"/>
+          </RadioButton>
+        </StackPanel>
+        <Button Grid.Row="1" Grid.Column="3" Content="Start Game" Command="{Binding Path=StartGameCommand}" VerticalAlignment="Top" HorizontalAlignment="Stretch"/>
+      </Grid>
+    </DataTemplate>
+
     <Style x:Key="CurrentContent" TargetType="{x:Type ContentControl}">
       <Style.Triggers>
-        <DataTrigger Binding="{Binding Path=CurrentState}" Value="{x:Static gamemenu:ViewState.Game}">
+        <DataTrigger Binding="{Binding Path=CurrentState}" Value="{x:Static gameplay:ViewState.Game}">
           <Setter Property="ContentTemplate" Value="{StaticResource GameContent}"/>
         </DataTrigger>
-        <DataTrigger Binding="{Binding Path=CurrentState}" Value="{x:Static gamemenu:ViewState.Menu}">
+        <DataTrigger Binding="{Binding Path=CurrentState}" Value="{x:Static gameplay:ViewState.Menu}">
           <Setter Property="ContentTemplate" Value="{StaticResource MenuContent}"/>
         </DataTrigger>
       </Style.Triggers>

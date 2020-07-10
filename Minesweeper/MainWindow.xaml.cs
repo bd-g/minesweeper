@@ -1,4 +1,4 @@
-﻿using Minesweeper.GameMenu;
+﻿using Minesweeper.GamePlay;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -20,7 +20,7 @@ namespace Minesweeper {
   /// </summary>
   public partial class MainWindow : Window {
     public MainWindow() {
-      this.DataContext = new GameMenuViewModel();
+      this.DataContext = new GameViewModel();
       InitializeComponent();
     }
   }

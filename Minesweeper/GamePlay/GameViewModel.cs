@@ -13,7 +13,7 @@ using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
 
-namespace Minesweeper.GameMenu {
+namespace Minesweeper.GamePlay {
   #region Outer Enums
   public enum ViewState
   {
@@ -30,12 +30,13 @@ namespace Minesweeper.GameMenu {
 
   public enum GameStatus
   {
+    NotStarted,
     InProgress,
     Won,
     Lost
   }
   #endregion
-  class GameMenuViewModel : CustomNotifyPropertyChanged {
+  public class GameViewModel : CustomNotifyPropertyChanged {
 
     #region Fields
     private ViewState currentState;
@@ -45,16 +46,13 @@ namespace Minesweeper.GameMenu {
     private static readonly NLog.Logger logger = NLog.LogManager.GetCurrentClassLogger();
     #endregion
 
-    /*Beginner has a total of ten mines and the board size is either 8 × 8, 9 × 9, or 10 × 10.
-     * Intermediate has 40 mines and also varies in size between 13 × 15 and 16 × 16. 
-     * Expert has 99 mines and is always 16 × 30 (or 30 × 16)     * 
-     */
     #region Constructors
-    public GameMenuViewModel() 
+    public GameViewModel() 
     {
       this.currentState = ViewState.Menu;
       this.isSettingFlag = false;
       this.currentDifficulty = GameDifficulty.Beginner;
+      this.gameStatus = GameStatus.NotStarted;
       this.StartGameCommand = new DelegateCommand<object>(this.StartGame, this.CanStartGame);
       this.EndGameCommand = new DelegateCommand<object>(this.EndGame, this.CanEndGame);
       this.SetFlagCommand = new DelegateCommand<object>(this.SetFlag, this.CanSetFlag);
@@ -102,6 +100,32 @@ namespace Minesweeper.GameMenu {
         OnPropertyChanged();
       }
     }
+    public int NumberOfMines
+    {
+      get
+      {
+        if (CurrentDifficulty == GameDifficulty.Beginner) {
+          return 10;
+        } else if (CurrentDifficulty == GameDifficulty.Intermediate) {
+          return 40;
+        } else {
+          return 99;
+        }
+      }
+    }
+    public int NumberOfMinesRemainingToFlag
+    {
+      get
+      {
+        int numFlagsPlaced = 0;
+        foreach (var gameTile in GameBoardCollection) {
+          if (gameTile.IsFlagged && !gameTile.IsSelected) {
+            numFlagsPlaced++;
+          }
+        }
+        return (NumberOfMines - numFlagsPlaced);
+      }
+    }
     public ObservableCollection<GameTileModel> GameBoardCollection { get; private set; }
     public bool IsSettingFlag {
       get {
@@ -117,19 +141,16 @@ namespace Minesweeper.GameMenu {
     #region Private Methods
     private void StartGame(object arg)
     {
-      int boardHeight, boardWidth, numMines;
+      int boardHeight, boardWidth;
       if (CurrentDifficulty == GameDifficulty.Beginner) {
         boardHeight = 10;
         boardWidth = 10;
-        numMines = 10;
       } else if (CurrentDifficulty == GameDifficulty.Intermediate) {
         boardHeight = 16;
         boardWidth = 16;
-        numMines = 40;
       } else {
         boardHeight = 16;
         boardWidth = 30;
-        numMines = 99;
       }
       GameBoardCollection = new ObservableCollection<GameTileModel>();
       for (int i = 0; i < boardHeight; i++) {
@@ -141,7 +162,7 @@ namespace Minesweeper.GameMenu {
       List<int> tileNumbers = Enumerable.Range(0, (boardHeight * boardWidth - 1)).ToList();
       Random rand = new Random();
 
-      for (int i = 0; i < numMines; i++) {
+      for (int i = 0; i < NumberOfMines; i++) {
         int index = rand.Next(0, tileNumbers.Count - 1);
         int randNumber = tileNumbers[index];
         int row = randNumber / boardWidth;
@@ -157,7 +178,7 @@ namespace Minesweeper.GameMenu {
           GameBoardCollection[index].NumMineNeighbors = numMineNeighbors;
         }
       }
-
+      CurrentGameStatus = GameStatus.InProgress;
       CurrentState = ViewState.Game;
     }
     private void EndGame(object arg)
@@ -181,6 +202,7 @@ namespace Minesweeper.GameMenu {
         int index = GameBoardCollection.IndexOf(oldTile);
         var newTile = new GameTileModel(oldTile.Row, oldTile.Col, newTileIsMine, newTileIsSelected, newTileIsFlagged, oldTile.NumMineNeighbors);
         GameBoardCollection[index] = newTile;
+        OnPropertyChanged("NumberOfMinesRemainingToFlag");
         logger.Trace("Gametile altered at position [%d,%d], index %d\nOld Tile - %s\nNewTile - %s", 
           oldTile.Row, oldTile.Col, index, oldTile.ToString(), newTile.ToString());
         if (newTile.NumMineNeighbors == 0 && !IsSettingFlag) {
@@ -202,7 +224,7 @@ namespace Minesweeper.GameMenu {
     {
       IsSettingFlag = false;
       CurrentDifficulty = GameDifficulty.Beginner;
-      CurrentGameStatus = GameStatus.InProgress;
+      CurrentGameStatus = GameStatus.NotStarted;
       GameBoardCollection = null;
     }
     private int GetNumMineNeighbors(int row, int col, int boardWidth, int boardHeight)
@@ -279,11 +301,19 @@ namespace Minesweeper.GameMenu {
           boardWidth = 30;
           boardHeight = 16;
           break;
-      }                             
-      
+      }
+
+      if (row - 1 >= 0 && col - 1 >= 0) {
+        int upperLeftIndex = ((row - 1) * boardWidth) + col - 1;
+        SelectTile(GameBoardCollection[upperLeftIndex]);
+      }
       if (row - 1 >= 0) {
         int upperIndex = ((row - 1) * boardWidth) + col;
         SelectTile(GameBoardCollection[upperIndex]);
+      }
+      if (row - 1 >= 0 && col + 1 < boardWidth) {
+        int upperRightIndex = ((row - 1) * boardWidth) + col + 1;
+        SelectTile(GameBoardCollection[upperRightIndex]);
       }
       if (col - 1 >= 0) {
         int leftIndex = (row * boardWidth) + col - 1;
@@ -293,9 +323,17 @@ namespace Minesweeper.GameMenu {
         int rightIndex = (row * boardWidth) + col + 1;
         SelectTile(GameBoardCollection[rightIndex]);
       }
+      if (row + 1 < boardHeight && col - 1 >= 0) {
+        int lowerLeftIndex = ((row + 1) * boardWidth) + col - 1;
+        SelectTile(GameBoardCollection[lowerLeftIndex]);
+      }
       if (row + 1 < boardHeight) {
         int lowerIndex = ((row + 1) * boardWidth) + col;
         SelectTile(GameBoardCollection[lowerIndex]);
+      }
+      if (row + 1 < boardHeight && col + 1 < boardWidth) {
+        int lowerRightIndex = ((row + 1) * boardWidth) + col + 1;
+        SelectTile(GameBoardCollection[lowerRightIndex]);
       }
     }
     private bool CheckForGameWin()
