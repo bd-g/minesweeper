@@ -7,11 +7,11 @@
         xmlns:utils="clr-namespace:Minesweeper.Utils"
         xmlns:gameplay="clr-namespace:Minesweeper.GamePlay"
         mc:Ignorable="d"
-        Title="Minesweeper" Height="450" Width="800" Icon="{Binding Source={x:Static resources:Pictures.mine}}">
+        Title="Minesweeper" Height="450" Width="800" Icon="{Binding Source={x:Static resources:Pictures.mine2}}">
   
   <Window.Resources>
     <Image x:Key="FlagImage" x:Shared="False" Source="{Binding Source={x:Static resources:Pictures.flag}}"/>
-    <Image x:Key="MineImage" x:Shared="False" Source="{Binding Source={x:Static resources:Pictures.mine}}"/>
+    <Image x:Key="MineImage" x:Shared="False" Source="{Binding Source={x:Static resources:Pictures.mine2}}"/>
 
     <Style x:Key="MineButton" TargetType="{x:Type Button}">
       <Setter Property="Content" Value="{StaticResource MineImage}"/>
@@ -323,7 +323,7 @@
         <Image Grid.Row="0" Grid.Column="0" Grid.ColumnSpan="2" Margin="40,40,40,40"
                Source="{Binding Source={x:Static resources:Pictures.flag}}"/>
         <Image Grid.Row="0" Grid.Column="5" Grid.ColumnSpan="2" Margin="40,40,40,40"
-               Source="{Binding Source={x:Static resources:Pictures.mine}}"/>
+               Source="{Binding Source={x:Static resources:Pictures.mine2}}"/>
 
         <StackPanel Grid.Row="0" Grid.Column="2" Grid.ColumnSpan="3"
                     HorizontalAlignment="Center" VerticalAlignment="Center">
